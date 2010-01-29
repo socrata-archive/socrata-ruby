@@ -1,0 +1,33 @@
+development:
+    credentials:
+        user: aiden
+        password: nedia
+    server:
+       host: 'http://localhost:8080'
+       public_host: 'http://localhost:9292'
+    date:
+        format: "%a, %d %b %Y %H:%M:%S"
+        output: "%Y/%m/%d %I:%M:%S %p"
+        ascending: true
+    dataset:
+        category: Fun
+
+production: &production
+    credentials:
+        user:       publicapisandbox
+        password:   socrata.sandbox
+    server:
+        host: 'www.socrata.com'
+        public_host: 'http://www.socrata.com'
+    date:
+        format: "%a, %d %b %Y %H:%M:%S"
+        output: "%Y/%m/%d %I:%M:%S %p"
+        ascending: true
+    dataset:
+        category: Fun
+        
+testing:
+    server:
+        host: 'test.socrata.com'
+        public_host: 'http://test.socrata.com'
+    <<: *production
