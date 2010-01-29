@@ -1,0 +1,11 @@
+h1. socrata-ruby - native ruby gem for accessing Socrata's RESTful API
+
+h2. Usage
+
+For an example app, see bin/twitter_set.rb. This grabs tweets given a search term, then pushes the results into a Socrata dataset.
+
+h2. Required Gems
+
+* json
+* httparty
+* curb
