@@ -9,7 +9,7 @@ module Socrata
     attr_reader :config
     
     def initialize(params = {})
-      mode = params[:mode] || 'development'
+      mode = params[:mode] || 'production'
       @config = params[:config] || YAML.load_file(File.dirname(__FILE__) + '/config.yml')[mode]
       
       @logger = params[:logger] || Logger.new(STDOUT)

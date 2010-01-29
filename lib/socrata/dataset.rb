@@ -75,14 +75,14 @@ module Socrata
     
     # Uploads an image for use in the dataset, returning the ID string to use in rows
     def upload_image(filename)
-        c = Curl::Easy.new("#{@config['server']['host']}/views/#{@id}/files.txt")
-        c.multipart_form_post = true
+      c = Curl::Easy.new("#{@config['server']['host']}/views/#{@id}/files.txt")
+      c.multipart_form_post = true
 
-        c.userpwd = @config['credentials']['user'] + ":" + @config['credentials']['password']
-        c.http_post(Curl::PostField.file('file',filename))
+      c.userpwd = @config['credentials']['user'] + ":" + @config['credentials']['password']
+      c.http_post(Curl::PostField.file('file',filename))
       
-        @response = JSON.parse(c.body_str) unless c.body_str.nil?
-        @response['file']
+      @response = JSON.parse(c.body_str) unless c.body_str.nil?
+      @response['file']
     end
 
   
