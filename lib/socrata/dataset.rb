@@ -64,7 +64,8 @@ module Socrata
     # For batch upload, saves a request to post later
     def get_add_row_request(data)
       return unless self.attached?
-      {:url => "/views/#{@id}/rows.json", :requestType => "POST", :body => data.to_json}
+      @batch_requests = Array.new if @batch_requests.nil?
+      @batch_requests << {:url => "/views/#{@id}/rows.json", :requestType => "POST", :body => data.to_json}
     end
   
     # Creates a new column in the dataset

@@ -67,9 +67,9 @@ class TwitterSet
     end
     # Sort chronological, not reverse- as Twitter API returns it
     # Then turn them into an array of batch requests for the core server
-    @rows.reverse!.map! {|r| @dataset.get_add_row_request(r)} unless @rows.nil? || @rows.empty?
+    @rows.reverse!.each {|r| @dataset.get_add_row_request(r)} unless @rows.nil? || @rows.empty?
     if post_now
-      @dataset.batch_request(@rows)
+      @dataset.batch_request()
     else
       return @rows
     end
