@@ -67,7 +67,7 @@ module Socrata
     
     # Delete's the current dataset
     def delete
-      response = self.class.delete("/views.json?id=#{@id}&method=delete")
+      @response = self.class.delete("/views.json?id=#{@id}&method=delete")
     end
 
     # Adds a row, immediately posting result to the API server.
