@@ -48,15 +48,26 @@ module Socrata
       end
     end
     
+    # Bulk appends rows to an existing dataset
+    def append(filename)
+      return unless self.attached?
+      
+      multipart_upload("/views/#{@id}/rows?method=append", filename)
+      check_error
+    end
+    
+    # Bulk replace rows in an existing dataset
+    def replace(filename)
+      return unless self.attached?
+      
+      multipart_upload("/views/#{@id}/rows?method=replace", filename)
+      check_error
+    end
+      
+    
     # Delete's the current dataset
     def delete
       response = self.class.delete("/views.json?id=#{@id}&method=delete")
-    end
-
-    # Turns a Ruby date object into a string that the API will recognize
-    def parse_date(date)
-      d = DateTime.strptime(date, @config['date']['format'])
-      return d.strftime(@config['date']['output']) + " GMT"
     end
 
     # Adds a row, immediately posting result to the API server.
@@ -220,6 +231,12 @@ module Socrata
     def embed_code(width=500, height=425)
       "<iframe width=\"#{width}px\" height=\"#{height}px\" src=\"#{@config['server']['public_host']}/widgets/#{@id}\" " +
         "frameborder=\"0\" scrolling=\"no\"></iframe>"
+    end
+    
+    # Turns a Ruby date object into a string that the API will recognize
+    def parse_date(date)
+      d = DateTime.strptime(date, @config['date']['format'])
+      return d.strftime(@config['date']['output']) + " GMT"
     end
   end
 end
