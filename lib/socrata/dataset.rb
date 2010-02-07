@@ -36,6 +36,18 @@ module Socrata
       @id = response['id']
     end
     
+    # Create a new dataset by importing (uploading) a file
+    def import(filename)
+      multipart_upload("/imports", filename)
+      check_error
+      if !@response['id'].nil? && is_id(@response['id'])
+        @id = @response['id']
+        @logger.info("Imported dataset: '#{@response['name']}' (#{@id})")
+      else
+        @logger.error("Did not recieve a valid UID in response from ImportsService")
+      end
+    end
+    
     # Delete's the current dataset
     def delete
       response = self.class.delete("/views.json?id=#{@id}&method=delete")
@@ -48,7 +60,7 @@ module Socrata
     end
 
     # Adds a row, immediately posting result to the API server.
-    # If you will be adding multiple rows, consider batching the requests via get_add_row_request,
+    # If you will be adding multiple rows, consider batching the requests via add_row_delayed,
     # Then passing those results as an array to batch_request
     def add_row(data)
       if not self.attached?
@@ -62,7 +74,7 @@ module Socrata
     end
   
     # For batch upload, saves a request to post later
-    def get_add_row_request(data)
+    def add_row_delayed(data)
       return unless self.attached?
       @batch_requests = Array.new if @batch_requests.nil?
       @batch_requests << {:url => "/views/#{@id}/rows.json", :requestType => "POST", :body => data.to_json}
@@ -90,16 +102,20 @@ module Socrata
     
     # Uploads an image for use in the dataset, returning the ID string to use in rows
     def upload_image(filename)
-      c = Curl::Easy.new("#{@config['server']['host']}/views/#{@id}/files.txt")
-      c.multipart_form_post = true
-
-      c.userpwd = @config['credentials']['user'] + ":" + @config['credentials']['password']
-      c.http_post(Curl::PostField.file('file',filename))
-      
-      @response = JSON.parse(c.body_str) unless c.body_str.nil?
+      multipart_upload("/views/#{@id}/files.txt", filename)
       @response['file']
     end
 
+    # Sends a multipart-formdata encoded POST request
+    def multipart_upload(url, file, field = 'file')
+      c = Curl::Easy.new(@config['server']['host'] + url.to_s)
+      c.multipart_form_post = true
+
+      c.userpwd = @config['credentials']['user'] + ":" + @config['credentials']['password']
+      c.http_post(Curl::PostField.file(field, file))
+      
+      @response = JSON.parse(c.body_str) unless c.body_str.nil?
+    end
   
     # Use an existing dataset by specifying its four-four ID.
     def attach(id)
