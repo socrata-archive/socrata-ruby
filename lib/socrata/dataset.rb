@@ -190,7 +190,7 @@ module Socrata
     # Mark a dataset as public or private
     def set_public(public = true)
       return unless self.attached?
-      param = public ? 'public' : 'private'
+      param = public ? 'public.read' : 'private'
       @response = self.class.get("/views/#{@id}?method=setPermission&value=#{param}")
       check_error
     end
