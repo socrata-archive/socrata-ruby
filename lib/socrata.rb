@@ -65,28 +65,6 @@ class Socrata
     return View.new(get_request("/views/#{uid}.json"), @party)
   end
 
-  def create(name, description = "", tags = [], public = true)
-    data_hash = { 'name' => name, 'description' => description }
-    data_hash[:tags] = tags unless tags.empty?
-
-    # Set public flag if public, defaults to private with no flags
-    data_hash[:flags] = ['dataPublic'] if public
-
-    # Post to views service, creating a new dataset
-    return View.new(post_request('/views.json', :body => data_hash.to_json), @party)
-  end
-
-  # Create a new dataset by importing (uploading) a file
-  def import(filename)
-    if @batching
-      raise "Error: Cannot do imports as part of a batch"
-    end
-
-    response = multipart_post_file("/imports", filename)
-    check_error!(response)
-    return View.new(response, @party)
-  end
-
   # Wrap a proc for a batch request
   def batch_request()
     @batching = true
