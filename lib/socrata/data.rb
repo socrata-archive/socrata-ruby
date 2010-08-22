@@ -76,5 +76,18 @@ class Socrata
     def get_row(row_id)
       return get_request("/views/#{self.id}/rows/#{row_id}.json")
     end
+
+    def filter(filter = {})
+      inline = {
+        :name => "Inline Filter for #{self.id}",
+        :id => self.id,
+        :original_view_id => self.id,
+        :query => filter
+      }
+
+      return post_request("/views/INLINE/rows.json?method=index", 
+                          {:body => Util.camelize_keys(inline).to_json} )["data"]
+    end
   end
 end
+

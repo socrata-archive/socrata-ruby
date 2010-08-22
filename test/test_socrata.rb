@@ -2,6 +2,48 @@ require 'test_helper'
 require 'pp'
 
 class SocrataTest < Test::Unit::TestCase
+  context "Util" do
+    should "camelize keys correctly" do
+      filter = {
+        :order_bys => [
+          { :ascending => false,
+            :expression => {
+              :type => "column",
+              :column_id => 2354168
+            }
+          }
+        ],
+        :filter_condition => {
+          :type => "operator",
+          :value => "AND",
+          :children => [
+            { :type => "operator",
+              :value => "GREATER_THAN",
+              :children => [
+                { :type => "column",
+                  :column_id => 2354168
+                },
+                { :type => "literal",
+                  :value => 13415141
+                }
+              ]
+            }
+          ]
+        }
+      }
+
+      # Camelize!
+      filter = Util.camelize_keys(filter)
+
+      # Confirm that keys have been converted
+      filter.each do |key, value|
+        assert_kind_of String, key
+        assert_nil key.match /_/
+      end
+    end
+  end
+
+
   ##################
   # Unauthenticated
   ##################
@@ -13,19 +55,14 @@ class SocrataTest < Test::Unit::TestCase
     ################
     # User Profiles
     ################
-    should "able to access user profile by login" do
-      chrismetcalf = @socrata.user("chris.metcalf")
-      assert_equal "chris.metcalf", chrismetcalf.login
-    end
-
     should "able to access a user profile by id" do
       chrismetcalf = @socrata.user("i7d8-sc4w")
-      assert_equal "chris.metcalf", chrismetcalf.login
+      assert_equal "Chris Metcalf", chrismetcalf.displayName
       assert_equal "i7d8-sc4w", chrismetcalf.id
     end
 
     should "not be able to see email address" do
-      chrismetcalf = @socrata.user("chris.metcalf")
+      chrismetcalf = @socrata.user("i7d8-sc4w")
       assert_nil chrismetcalf.email_address
     end
 
@@ -41,46 +78,69 @@ class SocrataTest < Test::Unit::TestCase
     ############
     # View Rows
     ############
-    should "be able to get view rows" do
-      noms = @socrata.view("n5m4-mism")
-      rows = noms.rows
-      assert rows.size > 0
-    end
+    context "with noms view" do
+      setup do
+        @noms = @socrata.view("n5m4-mism")
+      end
 
-    should "be able to get rows with a limit" do
-      noms = @socrata.view("n5m4-mism")
-      rows = noms.rows({:max_rows => 5})
+      should "be able to get view rows" do
+        rows = @noms.rows
+        assert rows.size > 0
+      end
 
-      assert_equal 5, rows.size
-    end
+      should "be able to get rows with a limit" do
+        rows = @noms.rows({:max_rows => 5})
+        assert_equal 5, rows.size
+      end
 
-    should "keys should be column names" do
-      noms = @socrata.view("n5m4-mism")
-      rows = noms.rows({:max_rows => 5})
+      should "keys should be column names" do
+        rows = @noms.rows({:max_rows => 5})
+        rows.each do |row|
+          row.each_key {|k| assert_kind_of String, k}
+        end
+      end
 
-      rows.each do |row|
-        row.each_key {|k| assert_kind_of String, k}
+      should "keys should be IDs if requested" do
+        rows = @noms.rows({:max_rows => 5}, "id")
+        rows.each do |row|
+          row.each_key {|k| assert_kind_of Integer, k.to_i}
+        end
+      end
+
+      should "be able to preform a filter" do
+        filter = {
+          :order_bys => [
+            :ascending => true,
+            :expression => {
+              :column_id => 2205506,
+              :type => "column"
+            }
+          ],
+          :filter_condition => {
+            :type => "operator",
+            :value => "EQUALS",
+            :children => [
+              { :type => "column", :column_id => 2205503, :value => "description" },
+              { :type => "literal", :value => "CIA" }
+            ]
+          }
+        }
+
+        rows = @noms.filter(filter)
+        assert rows.size > 0
       end
     end
 
-    should "keys should be IDs if requested" do
-      noms = @socrata.view("n5m4-mism")
-      rows = noms.rows({:max_rows => 5}, "id")
-
-      rows.each do |row|
-        row.each_key {|k| assert_kind_of Integer, k.to_i}
-      end
-    end
   end
 
   context "Authenticated" do
     setup do
       # Sorry, no password for you! :)
-      @socrata = Socrata.new({:username => "chrismetcalf-testing", :password => ENV['SOCRATA_PASSWORD']})
+      @socrata = Socrata.new({:username => "chris.metcalf@socrata.com", :password => ENV['SOCRATA_PASSWORD']})
     end
 
     should "able to see own email address in profile" do
-      chrismetcalf = @socrata.user("chrismetcalf-testing")
+      chrismetcalf = @socrata.user("i7d8-sc4w")
       assert_not_nil chrismetcalf.email
     end
   end

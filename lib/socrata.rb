@@ -25,7 +25,7 @@ require 'pp'
 # Dynamically load dependencies
 dir = File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
 require File.join(dir, 'socrata/data')
-
+require File.join(dir, 'ext')
 class Socrata
   include HTTParty
 
@@ -39,7 +39,7 @@ class Socrata
   }
 
   def initialize(params = {})
-    @config = DEFAULT_CONFIG.merge(symbolize_keys(params))
+    @config = DEFAULT_CONFIG.merge(Util.symbolize_keys(params))
     @logger = @config[:logger] || Logger.new(STDOUT)
     @batching = false
     @batch_queue = []
@@ -174,37 +174,4 @@ class Socrata
       return JSON.parse(c.body_str)
     end
 
-    def symbolize_keys(obj)
-      case obj
-      when Array
-        obj.inject([]){|res, val|
-          res << case val
-          when Hash, Array
-            symbolize_keys(val)
-          else
-            val
-          end
-          res
-        }
-      when Hash
-        obj.inject({}){|res, (key, val)|
-          nkey = case key
-          when String
-            key.to_sym
-          else
-            key
-          end
-          nval = case val
-          when Hash, Array
-            symbolize_keys(val)
-          else
-            val
-          end
-          res[nkey] = nval
-          res
-        }
-      else
-        obj
-      end
-    end
 end
