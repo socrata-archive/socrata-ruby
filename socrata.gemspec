@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "socrata"
-  s.version = "0.2.0"
+  s.version = "0.2.1"
   s.author = "Chris Metcalf"
   s.email = "chris.metcalf@socrata.com"
   s.homepage = "http://dev.socrata.com/"
@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
   s.description = "Access the Socrata data platform via Ruby"
   s.files = [
     "lib/socrata.rb",
+    "lib/ext.rb",
     "lib/socrata/data.rb",
     "lib/socrata/user.rb"
     ]
