@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "socrata"
-  s.version = "0.1.5"
+  s.version = "0.1.6"
   s.author = "Chris Metcalf"
   s.email = "chris.metcalf@socrata.com"
   s.homepage = "http://dev.socrata.com/"
