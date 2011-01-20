@@ -53,6 +53,8 @@ class Socrata
 
     self.class.base_uri @config[:base_uri]
 
+    self.class.headers('X-App-Token' => @config[:app_token]) unless @config[:app_token].nil?
+
     # Keep around a self reference because we need it
     @party = self.class
   end
