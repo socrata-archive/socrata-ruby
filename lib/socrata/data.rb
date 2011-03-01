@@ -128,5 +128,12 @@ class Socrata
     def delete!
       return delete_request("/views/#{self.id}")
     end
+
+    # Upload a file for a document or photo column
+    def upload_file(filename)
+      response = multipart_post_file("/views/#{self.id}/files", filename)
+      check_error!(response)
+      return response
+    end
   end
 end

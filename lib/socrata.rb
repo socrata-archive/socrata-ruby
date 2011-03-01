@@ -177,7 +177,7 @@ class Socrata
 
     # Reads response and checks for error code
     def check_error!(response)
-      if !response.nil? && response.code != 200
+      if !response.nil? && response.respond_to?("code") && response.code != 200
         raise "Got error from server: Code: #{response['code']}, Message: #{response['message']}"
       end
     end
